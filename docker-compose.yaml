@@ -9,20 +9,25 @@ services:
       dockerfile: Dockerfile.backend
     image: open-tutorai-with-webui
     container_name: open-tutor-backend
-    ports:
-      - "8080:8080"
+    # Kein ports-Mapping mehr – Coolify routet über Domain
+    expose:
+      - "8080"                # Interner Port, den der Container bereitstellt
     working_dir: /app/backend
     volumes:
-      - .:/app
+      - '.:/app'
     env_file:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
-    command: uvicorn open_tutorai.main:app --host 0.0.0.0 --port 8080 --reload
+    command: 'uvicorn open_tutorai.main:app --host 0.0.0.0 --port 8080 --reload'
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:8080/health'
       interval: 30s
       timeout: 10s
       retries: 5
@@ -33,21 +38,22 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     container_name: open-tutor-frontend
-    ports:
-      - "5173:5173"
+    # Kein ports-Mapping mehr – Coolify routet über Domain
+    expose:
+      - "5173"                # Interner Port des Vite-Entwicklungsservers
     working_dir: /app
     volumes:
-      - ./src:/app/src
-      - ./static:/app/static
-      - ./vite.config.js:/app/vite.config.js
-      - ./svelte.config.js:/app/svelte.config.js
-      - ./package.json:/app/package.json
-      - ./package-lock.json:/app/package-lock.json
-      - ./.env:/app/.env
+      - './src:/app/src'
+      - './static:/app/static'
+      - './vite.config.js:/app/vite.config.js'
+      - './svelte.config.js:/app/svelte.config.js'
+      - './package.json:/app/package.json'
+      - './package-lock.json:/app/package-lock.json'
+      - './.env:/app/.env'
     environment:
-      - VITE_API_URL=http://open-tutor-backend:8080
+      - 'VITE_API_URL=http://open-tutor-backend:8080'  # Interner Service-Name
       - NODE_ENV=development
-    command: npm run dev
+    command: 'npm run dev'
     depends_on:
       open-tutor-backend:
         condition: service_healthy
