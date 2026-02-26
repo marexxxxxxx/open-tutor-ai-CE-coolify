@@ -14,7 +14,7 @@ services:
       - "8080"                # Interner Port, den der Container bereitstellt
     working_dir: /app/backend
     volumes:
-      - ./backend:/app/backend          # Quellcode für Hot-Reload
+     # - ./backend:/app/backend          # Quellcode für Hot-Reload
       - ./.env:/app/.env  
     env_file:
       - .env
